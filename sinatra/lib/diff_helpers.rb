@@ -5,16 +5,19 @@ module DiffHelpers
   DIFF_DEL  = -1
   DIFF_NOOP =  0
 
-  def parse_diff(diff)
-    raw_diff = diff.diff.split(/\n/)
+  NULL_OID = "0" * 40
 
-    if raw_diff.length < 2 && raw_diff[0].start_with?("Binary files")
+  def parse_diff(patch, repo)
+    raw_diff = patch.to_s.split(/\n/)
+
+    if raw_diff.length < 2 && raw_diff[0]&.start_with?("Binary files")
       filename = raw_diff[0].match(/Binary\ files\ (.*)\ and\ (.*)\ differ/i)
       lines = Array[]
-    elsif diff.a_blob.nil?
+    elsif patch.delta.old_file[:oid] == NULL_OID
       filename = parse_filename(raw_diff[0..1])
+      blob_data = repo.lookup(patch.delta.new_file[:oid]).content
       line_num = 1
-      lines = diff.b_blob.data.split(/\n/).map do |line|
+      lines = blob_data.split(/\n/).map do |line|
         line_num += 1
         OpenStruct.new(
           :body => line[0..-1],

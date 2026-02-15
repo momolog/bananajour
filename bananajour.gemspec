@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "sinatra",       ">= 2.0"
   gem.add_dependency "rackup"
   gem.add_dependency "rainbow",       "~> 3.0"
-  gem.add_dependency "grit",          "~> 1.1"
+  gem.add_dependency "rugged",        "~> 1.9"
   gem.add_dependency "dnssd",         "~> 1.3"
   gem.add_dependency "haml",          "~> 5.0"
   gem.add_dependency "sass",          "~> 3.0"

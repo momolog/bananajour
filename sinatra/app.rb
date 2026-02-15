@@ -60,7 +60,7 @@ end
 
 get "/:repository/:commit" do
   @repository = Bananajour::Repository.for_name(params[:repository])
-  @commit     = @repository.grit_repo.commit(params[:commit])
+  @commit     = @repository.commit(params[:commit])
   haml :commit
 end
 

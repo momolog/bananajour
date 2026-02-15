@@ -205,7 +205,7 @@
       border-color: #980
 
 - for repository in @my_repositories
-  - heads = repository.grit_repo.heads
+  - heads = repository.heads
 
   .repository{:id => repository.html_id, 'data-name' => repository.name}
 

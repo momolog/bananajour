@@ -90,7 +90,6 @@ RSpec.describe DiffHelpers do
       result = helper.send(:parse_lines, lines, 5)
       expect(result[0].num).to eq(5)
       expect(result[0].op).to eq(DiffHelpers::DIFF_DEL)
-      # Single del-then-ins: run_length is 0 so no rewind occurs
       expect(result[1].num).to eq(6)
       expect(result[1].op).to eq(DiffHelpers::DIFF_INS)
     end
@@ -100,7 +99,6 @@ RSpec.describe DiffHelpers do
       result = helper.send(:parse_lines, lines, 10)
       expect(result[0]).to have_attributes(num: 10, op: DiffHelpers::DIFF_DEL)
       expect(result[1]).to have_attributes(num: 11, op: DiffHelpers::DIFF_DEL)
-      # Switching from DEL run (length 2) to INS: rewinds by run_length (1)
       expect(result[2]).to have_attributes(num: 11, op: DiffHelpers::DIFF_INS)
       expect(result[3]).to have_attributes(num: 12, op: DiffHelpers::DIFF_INS)
     end
@@ -116,23 +114,37 @@ RSpec.describe DiffHelpers do
   end
 
   describe "#parse_diff" do
+    let(:null_oid) { "0" * 40 }
+    let(:fake_oid) { "a" * 40 }
+
     it "handles binary files" do
-      diff = OpenStruct.new(
-        diff: "Binary files a/image.png and b/image.png differ",
-        a_blob: OpenStruct.new(data: ""),
-        b_blob: OpenStruct.new(data: "")
+      delta = double("delta",
+        old_file: {oid: fake_oid},
+        new_file: {oid: fake_oid}
       )
-      filename, lines = helper.parse_diff(diff)
+      patch = double("patch",
+        to_s: "Binary files a/image.png and b/image.png differ",
+        delta: delta
+      )
+      repo = double("repo")
+      filename, lines = helper.parse_diff(patch, repo)
       expect(lines).to eq([])
     end
 
-    it "handles new files (a_blob is nil)" do
-      diff = OpenStruct.new(
-        diff: "--- /dev/null\n+++ b/lib/new.rb",
-        a_blob: nil,
-        b_blob: OpenStruct.new(data: "line1\nline2\nline3")
+    it "handles new files (old_file oid is null)" do
+      delta = double("delta",
+        old_file: {oid: null_oid},
+        new_file: {oid: fake_oid}
       )
-      filename, lines = helper.parse_diff(diff)
+      patch = double("patch",
+        to_s: "--- /dev/null\n+++ b/lib/new.rb",
+        delta: delta
+      )
+      blob = double("blob", content: "line1\nline2\nline3")
+      repo = double("repo")
+      allow(repo).to receive(:lookup).with(fake_oid).and_return(blob)
+
+      filename, lines = helper.parse_diff(patch, repo)
       expect(filename).to eq("lib/new.rb")
       expect(lines.length).to eq(3)
       expect(lines.map(&:op)).to all(eq(DiffHelpers::DIFF_INS))
@@ -140,12 +152,17 @@ RSpec.describe DiffHelpers do
     end
 
     it "handles modified files" do
-      diff = OpenStruct.new(
-        diff: "--- a/lib/foo.rb\n+++ b/lib/foo.rb\n@@ -1,3 +1,3 @@\n context\n-old\n+new\n context2",
-        a_blob: OpenStruct.new(data: "context\nold\ncontext2"),
-        b_blob: OpenStruct.new(data: "context\nnew\ncontext2")
+      delta = double("delta",
+        old_file: {oid: fake_oid},
+        new_file: {oid: fake_oid}
       )
-      filename, lines = helper.parse_diff(diff)
+      patch = double("patch",
+        to_s: "--- a/lib/foo.rb\n+++ b/lib/foo.rb\n@@ -1,3 +1,3 @@\n context\n-old\n+new\n context2",
+        delta: delta
+      )
+      repo = double("repo")
+
+      filename, lines = helper.parse_diff(patch, repo)
       expect(filename).to eq("lib/foo.rb")
       expect(lines[0]).to have_attributes(body: "context", op: DiffHelpers::DIFF_NOOP)
       expect(lines[1]).to have_attributes(body: "old", op: DiffHelpers::DIFF_DEL)

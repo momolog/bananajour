@@ -77,4 +77,95 @@ RSpec.describe Bananajour::Repository do
       expect(repo.html_id).to eq(described_class.html_id("My-Project_2"))
     end
   end
+
+  describe "with a real git repository" do
+    let(:tmp_bare_path) { Dir.mktmpdir("bananajour-test") + "/test-project.git" }
+    let(:tmp_work_path) { Dir.mktmpdir("bananajour-work") }
+    let(:repo) { described_class.new(tmp_bare_path) }
+
+    before do
+      system("git init --bare #{tmp_bare_path}", out: File::NULL, err: File::NULL)
+      Dir.chdir(tmp_work_path) do
+        system("git init", out: File::NULL, err: File::NULL)
+        system("git config user.email test@test.com", out: File::NULL, err: File::NULL)
+        system("git config user.name Test", out: File::NULL, err: File::NULL)
+        File.write("README.md", "# Test Project")
+        system("git add README.md", out: File::NULL, err: File::NULL)
+        system("git commit -m 'initial commit'", out: File::NULL, err: File::NULL)
+        system("git remote add origin #{tmp_bare_path}", out: File::NULL, err: File::NULL)
+        system("git push origin master 2>/dev/null || git push origin main", out: File::NULL, err: File::NULL)
+      end
+    end
+
+    after do
+      FileUtils.rm_rf(tmp_bare_path)
+      FileUtils.rm_rf(tmp_work_path)
+    end
+
+    it "returns a Rugged::Repository from #rugged_repo" do
+      expect(repo.rugged_repo).to be_a(Rugged::Repository)
+    end
+
+    it "returns recent commits as CommitWrappers" do
+      commits = repo.recent_commits
+      expect(commits).not_to be_empty
+      expect(commits.first).to be_a(Bananajour::CommitWrapper)
+    end
+
+    it "exposes commit accessors via CommitWrapper" do
+      commit = repo.recent_commits.first
+      expect(commit.id).to be_a(String)
+      expect(commit.id.length).to eq(40)
+      expect(commit.id_abbrev.length).to eq(7)
+      expect(commit.short_message).to eq("initial commit")
+      expect(commit.committed_date).to be_a(Time)
+    end
+
+    it "exposes author via ActorWrapper" do
+      author = repo.recent_commits.first.author
+      expect(author).to be_a(Bananajour::ActorWrapper)
+      expect(author.name).to eq("Test")
+      expect(author.email).to eq("test@test.com")
+      expect(author.to_s).to eq("Test <test@test.com>")
+    end
+
+    it "returns heads as BranchWrappers" do
+      h = repo.heads
+      expect(h).not_to be_empty
+      expect(h.first).to be_a(Bananajour::BranchWrapper)
+      expect(h.first.name).to be_a(String)
+      expect(h.first.commit).to be_a(Bananajour::CommitWrapper)
+    end
+
+    it "looks up a commit by SHA" do
+      sha = repo.recent_commits.first.id
+      commit = repo.commit(sha)
+      expect(commit.id).to eq(sha)
+      expect(commit.short_message).to eq("initial commit")
+    end
+
+    it "returns a readme_file with name and data" do
+      rf = repo.readme_file
+      expect(rf).not_to be_nil
+      expect(rf.name).to eq("README.md")
+      expect(rf.data).to eq("# Test Project")
+    end
+
+    it "returns diffs from CommitWrapper" do
+      commit = repo.recent_commits.first
+      patches = commit.diffs
+      expect(patches).to be_an(Array)
+      expect(patches).not_to be_empty
+    end
+
+    it "produces a valid to_hash for JSON API" do
+      hash = repo.to_hash
+      expect(hash["name"]).to eq("test-project")
+      expect(hash["heads"]).to be_an(Array)
+      expect(hash["recent_commits"]).to be_an(Array)
+      expect(hash["recent_commits"].first["id"]).to be_a(String)
+      expect(hash["recent_commits"].first["author"]).to have_key("name")
+      expect(hash["recent_commits"].first["committed_date"]).to be_a(String)
+    end
+  end
 end

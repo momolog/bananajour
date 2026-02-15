@@ -2,7 +2,6 @@ libdir = File.dirname(__FILE__)
 $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
 require 'bananajour/repository'
-require 'bananajour/grit_extensions'
 require 'bananajour/version'
 require 'bananajour/bonjour'
 require 'bananajour/helpers'

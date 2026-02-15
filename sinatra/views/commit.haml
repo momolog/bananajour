@@ -101,8 +101,8 @@
     by
     %span.author&= @commit.author
 
-- for diff in @commit.diffs
-  - filename, lines = parse_diff(diff)
+- for patch in @commit.diffs
+  - filename, lines = parse_diff(patch, @repository.rugged_repo)
   %table.codediff
     %thead
       %tr
