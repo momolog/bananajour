@@ -1,2 +1,4 @@
 bananajour*.gem
 .bundle
+.claude
+.sass-cache
