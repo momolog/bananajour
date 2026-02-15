@@ -3,86 +3,86 @@
 %style{:type => 'text/css'}
   :sass
     #title
-      :margin-left 0
-    
+      margin-left: 0
+
     #commit_id
-      :text-transform uppercase
-      :margin 0
-        :left 12px
+      text-transform: uppercase
+      margin: 0
+        left: 12px
       &, a
-        :color rgb(153, 136, 0)
+        color: rgb(153, 136, 0)
       a:hover
-        :color #760
-    
+        color: #760
+
     p.message
       margin-left: 12px
       .meta
-        :font-size 90%
-        :margin-top 0
-        :color #796B00
-    
+        font-size: 90%
+        margin-top: 0
+        color: #796B00
+
     .codediff
-      :font 90%/140% "Bitstream Vera Sans Mono", "Inconsolata", Monaco, "Courier New", Courier, monospace
-      :width 100%
-      :border-collapse collapse
-      :margin-bottom 20px
-      
+      font: 90%/140% "Bitstream Vera Sans Mono", "Inconsolata", Monaco, "Courier New", Courier, monospace
+      width: 100%
+      border-collapse: collapse
+      margin-bottom: 20px
+
       th:first-child
-        :-webkit-border-top-left-radius 9px
+        -webkit-border-top-left-radius: 9px
       tr:last-child td:last-child
-        :-webkit-border-bottom-right-radius 9px
-      
+        -webkit-border-bottom-right-radius: 9px
+
       .line-num-cut
-        :background #ccc
-        :border-top 1px dashed #ccc
-        :border-bottom 1px dashed #ccc
+        background: #ccc
+        border-top: 1px dashed #ccc
+        border-bottom: 1px dashed #ccc
 
       th, .line_numbers
-        :background #F0E342
-      
+        background: #F0E342
+
       th
-        :text-align left
-        :padding 3px 0
-      
+        text-align: left
+        padding: 3px 0
+
       td
-        :padding 0 3px
+        padding: 0 3px
         &.line_numbers
-          :text-align right
-          :min-width 9px
-                    
+          text-align: right
+          min-width: 9px
+
         &.code
-          :white-space pre-wrap
-          :white-space -moz-pre-wrap
-          :white-space -pre-wrap
-          :white-space -o-pre-wrap
-          :word-wrap break-word
-          :background #fff
+          white-space: pre-wrap
+          white-space: -moz-pre-wrap
+          white-space: -pre-wrap
+          white-space: -o-pre-wrap
+          word-wrap: break-word
+          background: #fff
 
         &.unwrapped
-          :white-space pre
+          white-space: pre
 
         &.softwrapped
-          :white-space pre-wrap
-          :white-space -moz-pre-wrap
-          :white-space -pre-wrap
-          :white-space -o-pre-wrap
-          :word-wrap break-word
+          white-space: pre-wrap
+          white-space: -moz-pre-wrap
+          white-space: -pre-wrap
+          white-space: -o-pre-wrap
+          word-wrap: break-word
 
         &.marked
-          :background #ffc !important
-        
+          background: #ffc !important
+
         &.ins
-          :width 100%
-          :background #a3ffa3        
+          width: 100%
+          background: #a3ffa3
           ins
-            :text-decoration none
-        
+            text-decoration: none
+
         &.del
-          :background #ffa3a3
+          background: #ffa3a3
           del
-            :text-decoration none
-  
-  
+            text-decoration: none
+
+
 %h2#commit_id
   Commit
   = @commit.id_abbrev
