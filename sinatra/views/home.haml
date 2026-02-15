@@ -227,7 +227,7 @@
           %li
             %img.gravatar{:src => commit.author.gravatar_uri}
             %p.message
-              %a{:href => "/#{URI.escape(repository.name)}/#{commit.id}"}&= commit.short_message
+              %a{:href => "/#{Rack::Utils.escape_path(repository.name)}/#{commit.id}"}&= commit.short_message
               %span.meta
                 - if head = heads.find {|h| h.commit == commit}
                   \-

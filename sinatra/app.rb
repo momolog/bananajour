@@ -8,10 +8,7 @@ require 'sinatra'
 require 'haml'
 require 'json'
 
-require 'active_support/core_ext/enumerable'
-require 'active_support/core_ext/array'
-
-set :server, 'thin'
+set :server, 'puma'
 set :haml, {:format => :html5, :attr_wrapper => '"'}
 set :logging, false
 set :root, File.dirname(__FILE__)
@@ -28,8 +25,8 @@ require "bananajour/helpers"
 helpers Bananajour::GravatarHelpers, Bananajour::DateHelpers
 
 helpers do
-  def bananajour_browser() options.bananajour_browser end
-  def repository_browser() options.repository_browser end
+  def bananajour_browser() settings.bananajour_browser end
+  def repository_browser() settings.repository_browser end
   def json(body)
     content_type "application/json"
     params[:callback] ? "#{params[:callback]}(#{body});" : body

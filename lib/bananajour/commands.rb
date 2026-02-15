@@ -1,4 +1,4 @@
-require 'rainbow'
+require 'rainbow/ext/string'
 require 'pathname'
 
 module Bananajour::Commands
@@ -22,7 +22,7 @@ module Bananajour::Commands
       ENV["RACK_ENV"] ||= "production"
       require "bananajour/../../sinatra/app"
       Sinatra::Application.set :port, web_port
-      Sinatra::Application.set :server, "thin"
+      Sinatra::Application.set :server, "puma"
       Sinatra::Application.run!
     end
   end
