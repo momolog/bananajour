@@ -2,6 +2,8 @@
 # Runs a second bananajour instance with a fake identity on a different port,
 # useful for testing Bonjour network discovery on a single machine.
 
+require "bundler/setup"
+
 lib = File.expand_path("../../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
