@@ -123,7 +123,7 @@ RSpec.describe DiffHelpers do
         new_file: {oid: fake_oid}
       )
       patch = double("patch",
-        to_s: "Binary files a/image.png and b/image.png differ",
+        to_s: "diff --git a/image.png b/image.png\nBinary files a/image.png and b/image.png differ",
         delta: delta
       )
       repo = double("repo")
@@ -137,7 +137,7 @@ RSpec.describe DiffHelpers do
         new_file: {oid: fake_oid}
       )
       patch = double("patch",
-        to_s: "--- /dev/null\n+++ b/lib/new.rb",
+        to_s: "diff --git a/lib/new.rb b/lib/new.rb\nnew file mode 100644\nindex 0000000..aaaaaaa\n--- /dev/null\n+++ b/lib/new.rb\n@@ -0,0 +1,3 @@",
         delta: delta
       )
       blob = double("blob", content: "line1\nline2\nline3")
@@ -157,7 +157,7 @@ RSpec.describe DiffHelpers do
         new_file: {oid: fake_oid}
       )
       patch = double("patch",
-        to_s: "--- a/lib/foo.rb\n+++ b/lib/foo.rb\n@@ -1,3 +1,3 @@\n context\n-old\n+new\n context2",
+        to_s: "diff --git a/lib/foo.rb b/lib/foo.rb\nindex aaaaaaa..bbbbbbb 100644\n--- a/lib/foo.rb\n+++ b/lib/foo.rb\n@@ -1,3 +1,3 @@\n context\n-old\n+new\n context2",
         delta: delta
       )
       repo = double("repo")

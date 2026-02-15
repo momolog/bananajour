@@ -10,11 +10,16 @@ module DiffHelpers
   def parse_diff(patch, repo)
     raw_diff = patch.to_s.split(/\n/)
 
-    if raw_diff.length < 2 && raw_diff[0]&.start_with?("Binary files")
-      filename = raw_diff[0].match(/Binary\ files\ (.*)\ and\ (.*)\ differ/i)
+    # Rugged patches include full diff headers (diff --git, new file mode,
+    # index, etc.) before the --- / +++ lines. Find the --- line index.
+    dash_idx = raw_diff.index { |l| l.start_with?("---") }
+
+    binary_line = raw_diff.find { |l| l.start_with?("Binary files") }
+    if binary_line
+      filename = binary_line.match(/Binary\ files\ (.*)\ and\ (.*)\ differ/i)
       lines = Array[]
     elsif patch.delta.old_file[:oid] == NULL_OID
-      filename = parse_filename(raw_diff[0..1])
+      filename = parse_filename(raw_diff[dash_idx..dash_idx+1])
       blob_data = repo.lookup(patch.delta.new_file[:oid]).content
       line_num = 1
       lines = blob_data.split(/\n/).map do |line|
@@ -26,9 +31,9 @@ module DiffHelpers
          )
        end
      else
-        filename = parse_filename(raw_diff[0..1])
-        first_line_num = parse_first_line_num(raw_diff[2])
-        lines = parse_lines(raw_diff[3..-1], first_line_num)
+        filename = parse_filename(raw_diff[dash_idx..dash_idx+1])
+        first_line_num = parse_first_line_num(raw_diff[dash_idx+2])
+        lines = parse_lines(raw_diff[dash_idx+3..-1], first_line_num)
     end
     [filename, lines]
   end
@@ -46,7 +51,7 @@ module DiffHelpers
 
   private
     def parse_first_line_num(s)
-      chunk_header_match = s.match(/^\@\@ ([+-]?\d+)(,([+-]?\d+))? ([+-]?\d+)(,([+-]?\d+))? \@\@$/)
+      chunk_header_match = s.match(/^\@\@ ([+-]?\d+)(,([+-]?\d+))? ([+-]?\d+)(,([+-]?\d+))? \@\@/)
       chunk_header_match[4].to_i.abs
     end
 

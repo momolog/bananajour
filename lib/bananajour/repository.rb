@@ -27,6 +27,7 @@ module Bananajour
     def author
       ActorWrapper.new(__getobj__.author)
     end
+    def to_s = id_abbrev
     def ==(other)
       other.respond_to?(:oid) && self.oid == other.oid
     end
