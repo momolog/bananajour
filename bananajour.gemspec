@@ -26,4 +26,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency "sass",          "~> 3.0"
   gem.add_dependency "puma"
   gem.add_development_dependency "rspec", "~> 3.0"
+  gem.add_development_dependency "rack-test", "~> 2.0"
 end

@@ -25,7 +25,7 @@ class RepositoryBrowser
   end
   
   def repositories_similar_to(repository)
-    repositories.select {|r| r.name == repository.name}
+    repositories.select {|r| r.name == repository.name && r.person.uri != Bananajour.web_uri}
   end
   
   def repositories_for(person)
